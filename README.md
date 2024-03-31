@@ -4,7 +4,7 @@ base-url: http://localhost:8181/
 swagger-doc: http://localhost:8181/swagger-ui/index.html        
 
 
-Профиль для запуска: dev
+Профиль для запуска: dev                             
 Профиль для тестирования (тестирование еще не реализовано): test                
 БД для запуска: postgres, порт 5432 (dev)
 
