@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Профиль пользователя</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+        }
+
+        .auth-button, .logout-button {
+            background-color: #50a3a2;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .auth-button:hover, .logout-button:hover {
+            background-color: #077187;
+        }
+
+
+        header {
+            background: #50a3a2;
+            color: #fff;
+            padding-top: 18px;
+            padding-bottom: 2px;
+            min-height: 66px;
+            border-bottom: 1px solid #077187;
+            text-align: center;
+            font-size: 5px;
+            font-weight: bold;
+            position: relative;
+        }
+
+        header h1 {
+            display: inline-block;
+            width: auto;
+            padding: 5px 0;
+            margin: 0;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .links-container {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .header-link {
+            font-size: 16px;
+            color: #fff;
+            text-decoration: none;
+            margin-bottom: 10px;
+        }
+
+        .header-link:last-child {
+            margin-bottom: 0;
+        }   /* Стилизация скроллбара для WebKit-браузеров (Chrome, Safari) */
+        ::-webkit-scrollbar {
+            width: 12px; /* ширина скроллбара */
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; /* цвет дорожки скроллбара */
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888; /* цвет самого скроллбара */
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555; /* цвет скроллбара при наведении */
+        }
+
+        /* Стилизация скроллбара для Firefox */
+        * {
+            scrollbar-width: thin; /* "auto" или "thin" */
+            scrollbar-color: #888 #f1f1f1; /* цвет скроллбара и дорожки */
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="header-content">
+        <a href="/" style="text-decoration: none; color: inherit;">
+            <h1>Бронирование отелей</h1>
+        </a>
+        <div class="links-container">
+            <a href="/user/bookings" class="header-link">Мои бронирования</a>
+            <a href="/user/info" class="header-link">Личный кабинет</a>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <!-- Отображается, если пользователь авторизован -->
+    <div class="user-info" th:if="${user != null}">
+        <div class="profile-details">
+            <p><strong>Никнейм: </strong> <span th:text="${user.username}">zero</span></p>
+            <p><strong>Роль: </strong> <span th:text="${user.getRole().getDisplayValue()}">Не зарегистирован</span></p>
+            <p><strong>Почта: </strong> <span th:text="${user.email}">ivan@example.com</span></p>
+        </div>
+        <!-- Добавлен идентификатор к форме для её идентификации в JavaScript -->
+        <form id="logoutForm" th:action="@{/auth/sign-out}" method="post">
+            <button type="submit" class="logout-button">Выйти</button>
+        </form>
+    </div>
+    <!-- Отображается, если пользователь не авторизован -->
+    <div th:unless="${user != null}">
+        <form th:action="@{/login}" method="get">
+            <button type="submit" class="auth-button">Войти</button>
+        </form>
+    </div>
+</div>
+<script>
+  document.getElementById('logoutForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Предотвращение стандартной отправки формы
+    fetch(this.action, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    }).then(response => {
+      if (response.ok) {
+        window.location.href = '/';
+      } else {
+        alert('Проблема при попытке выхода из системы');
+      }
+    }).catch(error => {
+      console.error('Ошибка выхода:', error);
+    });
+  });
+</script>
+
+</body>
+</html>

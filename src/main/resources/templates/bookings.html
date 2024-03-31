@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Мои бронирования</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+        }
+
+        .table {
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .1);
+        }
+
+        .btn-primary, .btn-danger {
+            margin-right: 5px;
+        }
+
+        .btn-primary:hover, .btn-danger:hover {
+            opacity: 0.8;
+        }
+
+        /* Стили для <header>, перемещенные в нижнюю часть */
+        header {
+            background: #50a3a2;
+            color: #fff;
+            padding-top: 18px;
+            padding-bottom: 2px;
+            min-height: 66px;
+            border-bottom: 1px solid #077187;
+            text-align: center;
+            font-size: 5px;
+            font-weight: bold;
+            position: relative;
+        }
+
+        header h1 {
+            display: inline-block;
+            width: auto;
+            padding: 5px 0;
+            margin: 0;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .links-container {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .header-link {
+            font-size: 16px;
+            color: #fff;
+            text-decoration: none;
+            margin-bottom: 10px;
+        }
+
+        .header-link:last-child {
+            margin-bottom: 0;
+        }   /* Стилизация скроллбара для WebKit-браузеров (Chrome, Safari) */
+        ::-webkit-scrollbar {
+            width: 12px; /* ширина скроллбара */
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; /* цвет дорожки скроллбара */
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888; /* цвет самого скроллбара */
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555; /* цвет скроллбара при наведении */
+        }
+
+        /* Стилизация скроллбара для Firefox */
+        * {
+            scrollbar-width: thin; /* "auto" или "thin" */
+            scrollbar-color: #888 #f1f1f1; /* цвет скроллбара и дорожки */
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="header-content">
+        <a href="/" style="text-decoration: none; color: inherit;">
+            <h1>Бронирование отелей</h1>
+        </a>
+        <div class="links-container">
+            <a href="/user/bookings" class="header-link">Мои бронирования</a>
+            <a href="/user/info" class="header-link">Личный кабинет</a>
+        </div>
+    </div>
+</header>
+<div class="container">
+    <table class="table table-hover">
+        <thead class="thead-light">
+        <tr>
+            <th>Отель</th>
+            <th>Дата заезда</th>
+            <th>Дата выезда</th>
+            <th>Цена</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="booking : ${bookings}">
+            <td th:text="${booking.hotelName}">Отель</td>
+            <td th:text="${booking.startDate}">Дата заезда</td>
+            <td th:text="${booking.endDate}">Дата выезда</td>
+            <td th:text="${booking.price}">Цена</td>
+            <td>
+                <a th:href="@{admin/booking/edit/{id}(id=${booking.id})}" class="btn btn-primary">Изменить</a>
+                <button class="btn btn-danger cancel-booking-btn" th:data-booking-id="${booking.id}">Отменить</button>
+
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Найти все кнопки "Отменить"
+    const cancelButtons = document.querySelectorAll('.cancel-booking-btn');
+
+    // Добавить обработчик события нажатия на каждую кнопку "Отменить"
+    cancelButtons.forEach(function(button) {
+      button.addEventListener('click', function() {
+        // Получить id бронирования из атрибута data-booking-id кнопки
+
+        const bookingId = button.getAttribute('data-booking-id')
+        if (confirm('Вы уверены, что хотите отменить бронирование?')) {
+          // Отправить DELETE запрос на сервер
+          fetch(`/private/booking/` + bookingId, {
+            method: 'DELETE'
+          })
+            .then(function(response) {
+              // Проверить статус ответа
+              if (response.ok) {
+                // Если запрос выполнен успешно, перезагрузить страницу
+                location.reload();
+              } else {
+                // Если произошла ошибка, вывести сообщение об ошибке
+                alert('Ошибка при отмене бронирования. Пожалуйста, попробуйте снова.');
+              }
+            })
+            .catch(function(error) {
+              // Вывести сообщение об ошибке в консоль
+              console.error('Ошибка при отправке запроса:', error);
+              alert('Ошибка при отправке запроса. Пожалуйста, проверьте ваше соединение и попробуйте снова.');
+            });
+        }
+      });
+    });
+  });
+</script>
+</body>
+</html>

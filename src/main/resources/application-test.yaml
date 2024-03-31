@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: sa
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    generate-ddl: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  flyway:
+    enabled: false # Отключаем Flyway для тестового профиля
+
+logging:
+  level:
+    root: debug
+  file:
+    name: logs/application-test.log
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+token:
+  signing:
+    key: 21U73E5314B0A2D3B5F2D723E6Y4B46789OO4KD1F6E5C3A4446D6а5A75327855

@@ -1,0 +1,49 @@
+version: '3.7'
+services:
+  postgres-db:
+    image: postgres:latest
+    ports:
+    - "5432:5432"
+    networks:
+    - hotel_reservation_network
+    environment:
+      POSTGRES_DB: Hotel_reservation_DB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    volumes:
+    - db_data:/var/lib/postgresql/data
+
+  hotel-reservation:
+    image: sha256:7ca3ca9587314576c2b4abc5f5e7255e46c2bb1c0e609227d651b7641fbaefa1
+    container_name: hotel-reservation
+    ports:
+    - "8181:8181"
+    depends_on:
+    - postgres-db
+    networks:
+    - hotel_reservation_network
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/Hotel_reservation_DB
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+
+  ngrok:
+    image: wernight/ngrok
+    ports:
+    - "4040:4040" # Ngrok web interface
+    networks:
+    - hotel_reservation_network
+
+    environment:
+      NGROK_PORT: "hotel-reservation:8181"
+      NGROK_AUTH: 2eCDYckrLxZ9Wl8WWBUYJmKgaqP_3p4wcWiMNYcqYN1j4WfXz
+    depends_on:
+    - hotel-reservation
+
+
+volumes:
+  db_data:
+
+networks:
+  hotel_reservation_network:
