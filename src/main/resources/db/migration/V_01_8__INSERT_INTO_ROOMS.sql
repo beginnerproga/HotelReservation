@@ -11,5 +11,3 @@ VALUES ('DELUXE', 1200, 3, 4),
        ('ECONOMY', 800, 2, 7),
        ('STANDARD', 1200, 2, 7),
        ('DELUXE', 1800, 3, 7);
-ON CONFLICT (hotel_id, type) DO NOTHING;
-
