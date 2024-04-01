@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,6 +29,7 @@ import java.util.List;
 public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserService userService;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -41,6 +43,7 @@ public class SecurityConfiguration {
                 corsConfiguration.setAllowCredentials(true);
                 return corsConfiguration;
             }))
+            .httpBasic(Customizer.withDefaults())
             .authorizeHttpRequests(request -> request
                 .requestMatchers("/auth/**", "/*", "/images/**", "/{variable}", "/", "/hotel/**", "/hotels/**", "/user/**","/templates/**",
                     "/public/booking").permitAll()
@@ -51,8 +54,7 @@ public class SecurityConfiguration {
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling(handling -> handling
-                .authenticationEntryPoint((request, response, authException) ->
-                    response.sendRedirect("/login")));
+                .authenticationEntryPoint(customAuthenticationEntryPoint));
         return http.build();
     }
 

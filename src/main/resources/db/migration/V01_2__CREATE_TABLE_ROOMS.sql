@@ -7,5 +7,6 @@ CREATE TABLE IF NOT EXISTS rooms
     hotel_id BIGINT       NOT NULL,
     CONSTRAINT PK_ROOMS PRIMARY KEY (id),
     CONSTRAINT FK_ROOMS_HOTELS FOREIGN KEY (hotel_id)
-        references hotels (id) ON DELETE CASCADE
-);
+        references hotels (id) ON DELETE CASCADE,
+    CONSTRAINT UQ_ROOMS_TYPE_HOTEL_ID UNIQUE (type, hotel_id)
+    );
