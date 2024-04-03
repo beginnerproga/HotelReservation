@@ -126,7 +126,7 @@
             <td th:text="${booking.endDate}">Дата выезда</td>
             <td th:text="${booking.price}">Цена</td>
             <td>
-                <a th:href="@{admin/booking/edit/{id}(id=${booking.id})}" class="btn btn-primary">Изменить</a>
+                <a th:href="@{/hotel(name=${booking.hotelName})}" class="btn btn-primary">Изменить</a>
                 <button class="btn btn-danger cancel-booking-btn" th:data-booking-id="${booking.id}">Отменить</button>
 
             </td>
