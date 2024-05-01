@@ -33,6 +33,12 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+        
+    - name: Set Environment Variables
+      run: |
+        echo "SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/Hotel_reservation_DB" >> $GITHUB_ENV
+        echo "SPRING_DATASOURCE_USERNAME=postgres" >> $GITHUB_ENV
+        echo "SPRING_DATASOURCE_PASSWORD=postgres" >> $GITHUB_ENV
 
     - name: Build with Maven
       run: mvn clean package 
