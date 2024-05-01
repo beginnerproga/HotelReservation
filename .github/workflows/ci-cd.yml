@@ -1,25 +1,64 @@
-name: Java CI/CD
+name: Continuous Integration
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - main
   pull_request:
-    branches: [ master ]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: Hotel_reservation_DB
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
     - uses: actions/checkout@v3
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
 
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Cache Docker layers
+      uses: actions/cache@v3
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+
+    - name: Build and Push Docker images
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        file: ./Dockerfile
+        push: false
+        load: true
+        tags: user/app:latest
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache-new
 
     - name: Run tests
-      run: mvn test
+      run: docker-compose -f docker-compose.yaml up --abort-on-container-exit
+
+    - name: Clean up
+      if: always()
+      run: docker-compose -f docker-compose.yaml down
+
+    - name: Archive production Docker images
+      uses: actions/upload-artifact@v3
+      with:
+        name: docker-images
+        path: /tmp/*.tar
