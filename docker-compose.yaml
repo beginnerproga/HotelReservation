@@ -1,49 +1,83 @@
 version: '3.7'
 services:
   postgres-db:
-    image: postgres:latest
+    image: postgres:15
     ports:
-    - "5432:5432"
+      - "5432:5432"
     networks:
-    - hotel_reservation_network
+      - hotel_reservation_network
     environment:
       POSTGRES_DB: Hotel_reservation_DB
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-
     volumes:
-    - db_data:/var/lib/postgresql/data
+      - db:/var/lib/postgresql/data
 
   hotel-reservation:
-    image: sha256:7ca3ca9587314576c2b4abc5f5e7255e46c2bb1c0e609227d651b7641fbaefa1
+    image: hotel-reservation/hotel-reservation:latest
+    build: .
     container_name: hotel-reservation
     ports:
-    - "8181:8181"
+      - "8181:8181"
     depends_on:
-    - postgres-db
+      - postgres-db
     networks:
-    - hotel_reservation_network
+      - hotel_reservation_network
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/Hotel_reservation_DB
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_PROFILES_ACTIVE: dev
 
   ngrok:
     image: wernight/ngrok
     ports:
-    - "4040:4040" # Ngrok web interface
+      - "4040:4040"
     networks:
-    - hotel_reservation_network
-
+      - hotel_reservation_network
     environment:
       NGROK_PORT: "hotel-reservation:8181"
-      NGROK_AUTH: 2eCDYckrLxZ9Wl8WWBUYJmKgaqP_3p4wcWiMNYcqYN1j4WfXz
     depends_on:
-    - hotel-reservation
+      - hotel-reservation
 
+  elasticsearch:
+    image: elasticsearch:8.7.1
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    volumes:
+      - ./elasticsearch/config/elasticsearch.conf:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - hotel_reservation_network
+
+  logstash:
+    image: logstash:8.7.1
+    container_name: logstash
+    volumes:
+      - ./logstash/config/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    ports:
+      - "5000:5000"
+    networks:
+      - hotel_reservation_network
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: kibana:8.7.1
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    networks:
+      - hotel_reservation_network
+    depends_on:
+      - elasticsearch
 
 volumes:
-  db_data:
+  db:
+  esdata:
 
 networks:
   hotel_reservation_network:
