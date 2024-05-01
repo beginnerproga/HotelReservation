@@ -33,7 +33,14 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        
+
+    - name: Wait for PostgreSQL to become available
+      run: |
+        until pg_isready -h postgres -p 5432 -U postgres; do
+        echo "Waiting for PostgreSQL to become available..."
+        sleep 5
+        done
+    
     - name: Set Environment Variables
       run: |
         echo "SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/Hotel_reservation_DB" >> $GITHUB_ENV
