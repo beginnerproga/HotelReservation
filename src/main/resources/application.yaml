@@ -5,10 +5,16 @@ management:
   endpoints:
     web:
       exposure:
-        include: 'health,info,metrics,custom,stats'
+        include: '*'
+  endpoint:
+    prometheus:
+      enabled: true
+  distribution:
+    percentiles-histogram:
+      "[http.server.requests]": true
+
 app:
   version: 1.0.0
-
   start-date: ${spring.application.start-date}
 springdoc:
   swagger-ui:
@@ -37,9 +43,10 @@ springdoc:
 
 spring:
   profiles:
-    active: dev
+    active: test
 
 token:
   signing:
     key: 53A73E5F1C4E0A2D3B5F2D784E6A1B423D6F247D1F6E5C3A596D635A75327855
+
 

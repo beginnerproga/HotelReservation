@@ -34,27 +34,27 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable)
-            .cors(cors -> cors.configurationSource(request -> {
-                var corsConfiguration = new CorsConfiguration();
-                corsConfiguration.setAllowedOriginPatterns(List.of("*"));
-                corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                corsConfiguration.setAllowedHeaders(List.of("*"));
-                corsConfiguration.setAllowCredentials(true);
-                return corsConfiguration;
-            }))
-            .httpBasic(Customizer.withDefaults())
-            .authorizeHttpRequests(request -> request
-                .requestMatchers("/auth/**", "/*", "/images/**", "/{variable}", "/", "/hotel/**", "/hotels/**", "/user/**","/templates/**",
-                    "/public/booking").permitAll()
-                .requestMatchers("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated())
-            .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .exceptionHandling(handling -> handling
-                .authenticationEntryPoint(customAuthenticationEntryPoint));
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(request -> {
+                    var corsConfiguration = new CorsConfiguration();
+                    corsConfiguration.setAllowedOriginPatterns(List.of("*"));
+                    corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    corsConfiguration.setAllowedHeaders(List.of("*"));
+                    corsConfiguration.setAllowCredentials(true);
+                    return corsConfiguration;
+                }))
+                .httpBasic(Customizer.withDefaults())
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers("/auth/**", "/actuator/**", "/*", "/images/**", "/{variable}", "/", "/hotel/**", "/hotels/**", "/user/**", "/templates/**",
+                                "/public/booking").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .anyRequest().authenticated())
+                .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(handling -> handling
+                        .authenticationEntryPoint(customAuthenticationEntryPoint));
         return http.build();
     }
 
@@ -73,7 +73,7 @@ public class SecurityConfiguration {
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
-        throws Exception {
+            throws Exception {
         return config.getAuthenticationManager();
     }
 }
